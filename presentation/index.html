@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E2E QA Automation Control Plane | Mission Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --primary-glow: rgba(0, 212, 255, 0.4);
+            --secondary: #ff6b35;
+            --accent: #a855f7;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #030305;
+            --bg-card: rgba(10, 15, 25, 0.85);
+            --bg-card-hover: rgba(20, 30, 50, 0.9);
+            --border: rgba(0, 212, 255, 0.2);
+            --border-bright: rgba(0, 212, 255, 0.5);
+            --text: #e4e4e7;
+            --text-dim: #71717a;
+            --text-bright: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Grid Background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 212, 255, 0.1) 0%, transparent 60%);
+        }
+
+        /* Scanline Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.1) 2px,
+                rgba(0, 0, 0, 0.1) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.3;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(180deg, rgba(3, 3, 5, 0.95) 0%, transparent 100%);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px var(--primary-glow); }
+            50% { box-shadow: 0 0 25px var(--primary-glow), 0 0 50px rgba(0, 212, 255, 0.2); }
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            background: rgba(0, 212, 255, 0.05);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-bright) 0%, var(--primary) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 3rem;
+            line-height: 1.7;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            font-family: 'Exo 2', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #0099cc 100%);
+            color: var(--bg-dark);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px var(--primary-glow), 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        /* Section Styles */
+        section {
+            padding: 6rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--text-bright);
+            margin-bottom: 1rem;
+        }
+
+        .section-desc {
+            color: var(--text-dim);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .arch-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .arch-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .arch-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-bright);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 30px var(--primary-glow);
+        }
+
+        .arch-card:hover::before {
+            opacity: 1;
+        }
+
+        .arch-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .arch-card.core .arch-icon { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .arch-card.integration .arch-icon { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .arch-card.source .arch-icon { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .arch-card.data .arch-icon { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .arch-card.storage .arch-icon { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+        .arch-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 0.5rem;
+        }
+
+        .arch-card p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .arch-tag {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Workflow Section */
+        .workflow {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .workflow-timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .workflow-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--primary), var(--accent), var(--secondary));
+        }
+
+        .workflow-step {
+            position: relative;
+            margin-bottom: 2.5rem;
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: all 0.4s ease;
+            animation: slideIn 0.6s ease forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .workflow-step:nth-child(1) { animation-delay: 0.1s; }
+        .workflow-step:nth-child(2) { animation-delay: 0.2s; }
+        .workflow-step:nth-child(3) { animation-delay: 0.3s; }
+        .workflow-step:nth-child(4) { animation-delay: 0.4s; }
+        .workflow-step:nth-child(5) { animation-delay: 0.5s; }
+        .workflow-step:nth-child(6) { animation-delay: 0.6s; }
+        .workflow-step:nth-child(7) { animation-delay: 0.7s; }
+        .workflow-step:nth-child(8) { animation-delay: 0.8s; }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .workflow-step:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-bright);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .workflow-number {
+            position: absolute;
+            left: -3rem;
+            top: 2rem;
+            width: 30px;
+            height: 30px;
+            background: var(--bg-dark);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            z-index: 1;
+        }
+
+        .workflow-step.active .workflow-number {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+
+        .workflow-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .workflow-icon {
+            font-size: 1.5rem;
+        }
+
+        .workflow-step h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-bright);
+        }
+
+        .workflow-step p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .workflow-output {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--success);
+        }
+
+        /* Terminal Section */
+        .terminal-section {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .terminal {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            background: linear-gradient(180deg, #1a1f2e 0%, #141821 100%);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27ca40; }
+
+        .terminal-title {
+            flex: 1;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .terminal-body {
+            padding: 1.5rem;
+            min-height: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            margin-bottom: 0.25rem;
+        }
+
+        .terminal-prompt {
+            color: var(--primary);
+        }
+
+        .terminal-command {
+            color: var(--text-bright);
+        }
+
+        .terminal-output {
+            color: var(--text-dim);
+        }
+
+        .terminal-success {
+            color: var(--success);
+        }
+
+        .terminal-warning {
+            color: var(--warning);
+        }
+
+        .terminal-error {
+            color: var(--danger);
+        }
+
+        .terminal-info {
+            color: var(--accent);
+        }
+
+        .terminal-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: var(--primary);
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .demo-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .demo-btn {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .demo-btn.active {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Phases Section */
+        .phases {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .phases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .phase-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .phase-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateX(5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .phase-card:hover::before {
+            opacity: 1;
+        }
+
+        .phase-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: rgba(0, 212, 255, 0.1);
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+        }
+
+        .phase-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .phase-card p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .phase-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .phase-status.automated {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .phase-status.planned {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tech-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-bright);
+            transform: translateY(-3px);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-item h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            margin-bottom: 0.25rem;
+        }
+
+        .tech-item p {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        /* Commands Reference */
+        .commands {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .command-group {
+            margin-bottom: 2rem;
+        }
+
+        .command-group h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .command-list {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .command-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s ease;
+        }
+
+        .command-item:last-child {
+            border-bottom: none;
+        }
+
+        .command-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .command-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+
+        .command-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: 'Exo 2', sans-serif;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .copy-btn.copied {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .command-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s ease;
+            gap: 1rem;
+        }
+
+        .command-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-card);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            z-index: 1001;
+            opacity: 0;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Live Demo Banner */
+        .live-demo-banner {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .live-demo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .live-demo-text h4 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--text-bright);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .live-demo-text p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .btn-live {
+            background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+        }
+
+        .btn-live:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(168, 85, 247, 0.4), 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Presenter Controls */
+        .presenter-controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 200;
+        }
+
+        .presenter-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .presenter-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            z-index: 200;
+        }
+
+        /* Robot Animation */
+        .robot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            z-index: 50;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .robot-container:hover {
+            opacity: 1;
+        }
+
+        .robot {
+            width: 60px;
+            height: 80px;
+            position: relative;
+        }
+
+        .robot-head {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            margin: 0 auto 5px;
+            position: relative;
+            animation: robot-bob 2s ease-in-out infinite;
+        }
+
+        @keyframes robot-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .robot-eye {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            animation: robot-blink 3s ease-in-out infinite;
+        }
+
+        .robot-eye.left { left: 8px; }
+        .robot-eye.right { right: 8px; }
+
+        @keyframes robot-blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        .robot-body {
+            width: 50px;
+            height: 40px;
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .robot-core {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse-core 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-core {
+            0%, 100% { opacity: 0.5; box-shadow: 0 0 10px var(--primary); }
+            50% { opacity: 1; box-shadow: 0 0 25px var(--primary); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .cta-group {
+                flex-direction: column;
+            }
+
+            .workflow-timeline {
+                padding-left: 2rem;
+            }
+
+            .workflow-number {
+                left: -2rem;
+            }
+
+            .presenter-controls {
+                bottom: 1rem;
+                right: 1rem;
+            }
+
+            .robot-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="scanlines"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <span>E2E QA Control Plane</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#architecture">Architecture</a></li>
+            <li><a href="#workflow">Workflow</a></li>
+            <li><a href="#terminal">Live Demo</a></li>
+            <li><a href="#phases">Phases</a></li>
+            <li><a href="#results">Results</a></li>
+            <li><a href="#commands">Commands</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-badge">🤖 QA Automation Platform v2.0</div>
+        <h1>E2E QA AUTOMATION<br>CONTROL PLANE</h1>
+        <p class="hero-subtitle">
+            A reusable automation platform that orchestrates the complete QA lifecycle. 
+            Automated test generation, execution, and evidence capture across 
+            any CRM, integration layer, and downstream systems.
+        </p>
+        <div class="hero-stats">
+            <div class="stat">
+                <span class="stat-value">6</span>
+                <span class="stat-label">Automated Phases</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">50+</span>
+                <span class="stat-label">Feature Files</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value">100%</span>
+                <span class="stat-label">Traceability</span>
+            </div>
+        </div>
+        <div class="cta-group">
+            <a href="#terminal" class="btn btn-primary">
+                <span>▶</span> Watch Demo
+            </a>
+            <a href="#workflow" class="btn btn-secondary">
+                View Workflow
+            </a>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="architecture">
+        <div class="section-header">
+            <span class="section-badge">System Integration</span>
+            <h2 class="section-title">Platform Architecture</h2>
+            <p class="section-desc">
+                Adapter-based architecture supporting any CRM, integration layer, and data platform
+            </p>
+        </div>
+        <div class="architecture">
+            <div class="arch-grid">
+                <div class="arch-card core">
+                    <div class="arch-icon">🔵</div>
+                    <h3>CRM Platform</h3>
+                    <p>Salesforce / Guidewire / Duck Creek / Custom. Full UI + API testing coverage with adapter pattern.</p>
+                    <span class="arch-tag">Core Platform</span>
+                </div>
+                <div class="arch-card integration">
+                    <div class="arch-icon">🟢</div>
+                    <h3>Integration Layer</h3>
+                    <p>MuleSoft / Custom APIs. Bidirectional communication with API contract testing enabled.</p>
+                    <span class="arch-tag">Integration</span>
+                </div>
+                <div class="arch-card source">
+                    <div class="arch-icon">🟡</div>
+                    <h3>Reference Data</h3>
+                    <p>RDM / CMT / Custom. Reference data and configuration management validation.</p>
+                    <span class="arch-tag">Source Systems</span>
+                </div>
+                <div class="arch-card data">
+                    <div class="arch-icon">🟠</div>
+                    <h3>Data Warehouse</h3>
+                    <p>Snowflake / BigQuery / Custom. Data pipeline validation and integrity testing.</p>
+                    <span class="arch-tag">Data Pipeline</span>
+                </div>
+                <div class="arch-card storage">
+                    <div class="arch-icon">🟣</div>
+                    <h3>Data Store</h3>
+                    <p>SQL Server / PostgreSQL / Custom. Operational data validation and cross-system integrity testing.</p>
+                    <span class="arch-tag">Data Store</span>
+                </div>
+                <div class="arch-card core">
+                    <div class="arch-icon">⚫</div>
+                    <h3>Storage Systems</h3>
+                    <p>Blob / SharePoint / S3 / Custom. File upload/download and document management testing.</p>
+                    <span class="arch-tag">Storage</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section id="workflow">
+        <div class="section-header">
+            <span class="section-badge">Process Flow</span>
+            <h2 class="section-title">Complete Automation Workflow</h2>
+            <p class="section-desc">
+                From work item to deployment validation - every step automated with human oversight
+            </p>
+        </div>
+        <div class="workflow">
+            <div class="workflow-timeline">
+                <div class="workflow-step active">
+                    <div class="workflow-number">1</div>
+                    <div class="workflow-header">
+                        <span class="workflow-icon">📥</span>
+                        <h3>Get Work Item</h3>
+                    </div>
+                    <p>Add work item to work-items.txt. Review requirements, acceptance criteria, and field definitions in your work management tool (Jira / ADO / Rally).</p>
+                    <div class="workflow-output">→ Work item identified: PROJ-520</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-number">2</div>
+                    <div class="workflow-header">
+                        <span class="workflow-icon">📝</span>
+                        <h3>Create Test Cases</h3>
+                    </div>
+                    <p>Generate comprehensive Gherkin test cases from work management tool. Review scenarios, validate step definitions, upload to test case management (Zephyr / Xray / qTest).</p>
+                    <div class="workflow-output">→ Feature files: PROJ-520-UI-001, PROJ-520-API-001</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-number">3</div>
+                    <div class="workflow-header">
+                        <span class="workflow-icon">⚙️</span>
+                        <h3>Create Scripts</h3>
+                    </div>
+                    <p>Identify missing steps, create step definitions using Page Object Model and Field Registry. Test locally.</p>
+                    <div class="workflow-output">→ Step definitions validated ✓</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-number">4</div>
+                    <div class="workflow-header">
+                        <span class="workflow-icon">📊</span>
+                        <h3>Create Test Data</h3>
+                    </div>
+                    <p>Test Data Factory auto-creates test records with 24+ fields populated. Supports any object model via adapters. Auto-cleanup after execution.</p>
+                    <div class="workflow-output">→ Test data ready: REC-20241218-001</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-number">5</div>
+                    <div class="workflow-header">
+                        <span class="workflow-icon">📤</span>
+                        <h3>Commit to GitHub</h3>
+                    </div>
+                    <p>Create feature branch, stage changes, commit with descriptive message, push to remote, create Pull Request.</p>
+                    <div class="workflow-output">→ PR #142: feature/SF-520-test-cases</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-number">6</div>
+                    <div class="workflow-header">
+                        <span class="workflow-icon">🖥️</span>
+                        <h3>Run Tests in VM</h3>
+                    </div>
+                    <p>CI/CD pipeline triggered (GitHub Actions / Azure Pipelines / GitLab). Tests execute on Linux VM. Results generated and uploaded to test case management.</p>
+                    <div class="workflow-output">→ 15 tests passed, 0 failed</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-number">7</div>
+                    <div class="workflow-header">
+                        <span class="workflow-icon">🔒</span>
+                        <h3>Gearset Validation</h3>
+                    </div>
+                    <p>Deployment tool (Gearset / Azure DevOps / Custom) detects PR, deploys to QA environment, triggers tests, evaluates results. Blocks/allows deployment based on test outcome.</p>
+                    <div class="workflow-output">→ Build validation: PASSED ✓</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="workflow-number">8</div>
+                    <div class="workflow-header">
+                        <span class="workflow-icon">✅</span>
+                        <h3>Complete</h3>
+                    </div>
+                    <p>Tests pass → Deployment continues to UAT. Tests fail → Fix issues, re-run workflow. Full traceability maintained.</p>
+                    <div class="workflow-output">→ Deployed to UAT environment</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Terminal Demo Section -->
+    <section id="terminal">
+        <div class="section-header">
+            <span class="section-badge">Live Demo</span>
+            <h2 class="section-title">Interactive Command Center</h2>
+            <p class="section-desc">
+                Watch the framework in action - click a demo to see the commands execute
+            </p>
+        </div>
+        <div class="terminal-section">
+            <div class="terminal">
+                <div class="terminal-header">
+                    <div class="terminal-dot red"></div>
+                    <div class="terminal-dot yellow"></div>
+                    <div class="terminal-dot green"></div>
+                    <div class="terminal-title">E2E QA Control Plane Terminal — bash</div>
+                </div>
+                <div class="terminal-body" id="terminal-body">
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">qa@control-plane</span>:<span class="terminal-info">~/E2E-QA-Control-Plane</span>$ <span class="terminal-cursor"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="demo-buttons">
+                <button class="demo-btn" data-demo="generate">📝 Generate Tests</button>
+                <button class="demo-btn" data-demo="validate">✅ Validate Steps</button>
+                <button class="demo-btn" data-demo="execute">▶️ Run Tests</button>
+                <button class="demo-btn" data-demo="upload">📤 Upload Results</button>
+                <button class="demo-btn" data-demo="cleanup">🧹 Cleanup Data</button>
+                <button class="demo-btn" data-demo="full">🚀 Full Workflow</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Phases Section -->
+    <section id="phases">
+        <div class="section-header">
+            <span class="section-badge">Automation Coverage</span>
+            <h2 class="section-title">6 QA Lifecycle Phases</h2>
+            <p class="section-desc">
+                Each phase automated with human review at critical checkpoints
+            </p>
+        </div>
+        <div class="phases">
+            <div class="phases-grid">
+                <div class="phase-card">
+                    <div class="phase-number">01</div>
+                    <h3>🔍 Requirement Analysis</h3>
+                    <p>Extracts acceptance criteria, field definitions, and business rules from work management tool (Jira / ADO / Rally) via API.</p>
+                    <span class="phase-status automated">✓ Fully Automated</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">02</div>
+                    <h3>📝 Test Case Design</h3>
+                    <p>Generates comprehensive Gherkin (BDD) feature files with positive, negative, and edge case scenarios.</p>
+                    <span class="phase-status automated">✓ Fully Automated</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">03</div>
+                    <h3>📊 Test Data Setup</h3>
+                    <p>Creates test data records via CRM API (Salesforce / Guidewire / Custom) with 24+ fields populated. Auto-cleanup included.</p>
+                    <span class="phase-status automated">✓ Fully Automated</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">04</div>
+                    <h3>▶️ Test Execution</h3>
+                    <p>Executes UI tests (Playwright) and API tests (REST/JWT) across all integrated systems.</p>
+                    <span class="phase-status automated">✓ Fully Automated</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">05</div>
+                    <h3>📸 Evidence Generation</h3>
+                    <p>Captures screenshots, generates HTML/JSON reports, uploads evidence to documentation system (Confluence / SharePoint / Custom) automatically.</p>
+                    <span class="phase-status automated">✓ Fully Automated</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">06</div>
+                    <h3>🐛 Bug Creation</h3>
+                    <p>Automatically creates bugs in work management tool (Jira / ADO / Custom) for failed tests with reproduction steps and evidence links.</p>
+                    <span class="phase-status planned">📋 Planned</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results">
+        <div class="section-header">
+            <span class="section-badge">Business Outcomes</span>
+            <h2 class="section-title">Results Achieved</h2>
+            <p class="section-desc">
+                Measurable impact from implementing the E2E QA Automation Control Plane
+            </p>
+        </div>
+        <div class="phases">
+            <div class="phases-grid">
+                <div class="phase-card">
+                    <div class="phase-number">70%</div>
+                    <h3>⚡ Cycle Time Reduction</h3>
+                    <p>Test case generation reduced from days to hours. Complete workflow automation eliminates manual handoffs.</p>
+                    <span class="phase-status automated">✓ Proven Results</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">60%</div>
+                    <h3>💰 Manual Effort Removed</h3>
+                    <p>Automated test data creation, execution, and evidence generation. QA engineers focus on validation, not data entry.</p>
+                    <span class="phase-status automated">✓ Proven Results</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">100%</div>
+                    <h3>🔗 Full Traceability</h3>
+                    <p>Complete audit trail from requirement → test case → execution → evidence. Compliance-ready documentation.</p>
+                    <span class="phase-status automated">✓ Proven Results</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">45%</div>
+                    <h3>📉 Incident Reduction</h3>
+                    <p>Early detection of integration and data issues prevents production incidents. Validated across multiple deployments.</p>
+                    <span class="phase-status automated">✓ Proven Results</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">30%</div>
+                    <h3>🚀 Faster Releases</h3>
+                    <p>Automated validation gates enable faster release cycles with confidence. Zero test-in-prod for high-risk scenarios.</p>
+                    <span class="phase-status automated">✓ Proven Results</span>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-number">50+</div>
+                    <h3>📝 Test Cases Automated</h3>
+                    <p>Comprehensive coverage across multiple systems. AI-powered generation ensures consistent quality and coverage.</p>
+                    <span class="phase-status automated">✓ Proven Results</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="cta" style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+        <div class="section-header">
+            <span class="section-badge">Get Started</span>
+            <h2 class="section-title">This Can Be Live in 30 Days</h2>
+            <p class="section-desc">
+                The platform is proven. Implementation is straightforward. Results are immediate.
+            </p>
+        </div>
+        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 3rem; margin-bottom: 2rem;">
+                <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: var(--text-bright); margin-bottom: 1.5rem;">Three Packaging Tiers</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+                        <h4 style="font-family: 'Orbitron', sans-serif; color: var(--primary); margin-bottom: 0.5rem;">Tier 1: Accelerator</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">Framework setup, tool adapters, one domain automated</p>
+                        <p style="font-size: 0.75rem; color: var(--text-dim);">Use case: Proof of value</p>
+                    </div>
+                    <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+                        <h4 style="font-family: 'Orbitron', sans-serif; color: var(--primary); margin-bottom: 0.5rem;">Tier 2: Embedded Platform</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">Full CI/CD enforcement, test data factories, governance</p>
+                        <p style="font-size: 0.75rem; color: var(--text-dim);">Use case: Regulated industries</p>
+                    </div>
+                    <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem;">
+                        <h4 style="font-family: 'Orbitron', sans-serif; color: var(--primary); margin-bottom: 0.5rem;">Tier 3: Transformation</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">Shift-left adoption, BDD coaching, org redesign</p>
+                        <p style="font-size: 0.75rem; color: var(--text-dim);">Use case: Executive-led change</p>
+                    </div>
+                </div>
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 2rem;">
+                    <h4 style="font-family: 'Orbitron', sans-serif; color: var(--success); margin-bottom: 1rem; font-size: 1.1rem;">🎯 Ready to Transform Your QA Process?</h4>
+                    <p style="color: var(--text-dim); margin-bottom: 1.5rem; line-height: 1.7;">
+                        This is not just automation. This is a complete QA lifecycle orchestration platform 
+                        that can be adapted to your technology stack in 30 days.
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="https://github.com/joseph-karschnik/e2e-qa-control-plane" class="btn btn-primary" target="_blank">
+                            <span>📚</span> View Platform
+                        </a>
+                        <a href="mailto:your-email@example.com" class="btn btn-secondary">
+                            <span>💬</span> Schedule Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech">
+        <div class="section-header">
+            <span class="section-badge">Technology</span>
+            <h2 class="section-title">Technology Stack</h2>
+            <p class="section-desc">
+                Modern, battle-tested tools for reliable automation
+            </p>
+        </div>
+        <div class="tech-stack">
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <div class="tech-icon">🥒</div>
+                    <h4>Cucumber.js</h4>
+                    <p>BDD Test Runner</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">🎭</div>
+                    <h4>Playwright</h4>
+                    <p>Browser Automation</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">📡</div>
+                    <h4>Axios + JWT</h4>
+                    <p>API Testing</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">💎</div>
+                    <h4>TypeScript</h4>
+                    <p>Type-Safe Code</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">📊</div>
+                    <h4>Allure</h4>
+                    <p>Rich Reports</p>
+                </div>
+                <div class="tech-item">
+                    <div class="tech-icon">🐙</div>
+                    <h4>GitHub Actions</h4>
+                    <p>CI/CD Pipeline</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commands Reference -->
+    <section id="commands">
+        <div class="section-header">
+            <span class="section-badge">Reference</span>
+            <h2 class="section-title">Command Quick Reference</h2>
+            <p class="section-desc">
+                Essential commands for the complete automation workflow
+            </p>
+        </div>
+        <div class="commands">
+            <div class="command-group">
+                <h3>Test Generation</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run generate:tests -- --work-item PROJ-520</code>
+                            <span class="command-desc">Generate UI + API tests</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run generate:tests -- --work-item PROJ-520 --type ui</code>
+                            <span class="command-desc">Generate UI tests only</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="command-group">
+                <h3>Test Execution</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run test:feature -- --tags "@PROJ-520"</code>
+                            <span class="command-desc">Run all tests for work item</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run test:interactive</code>
+                            <span class="command-desc">Run with Playwright Inspector</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="command-group">
+                <h3>Test Case Management Integration</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run tcm:UploadTestCase -- --work-item PROJ-520</code>
+                            <span class="command-desc">Upload test cases (Zephyr / Xray / qTest)</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run tcm:UploadResult -- --work-item PROJ-520</code>
+                            <span class="command-desc">Upload test results</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="command-group">
+                <h3>Validation & Cleanup</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run validate:steps -- --work-item PROJ-520</code>
+                            <span class="command-desc">Validate step definitions</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run cleanup:accounts</code>
+                            <span class="command-desc">Clean up test data</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Live Demo Banner -->
+            <div class="live-demo-banner">
+                <div class="live-demo-text">
+                    <h4>🎬 Want to run a REAL demo?</h4>
+                    <p>Run the interactive demo script in your terminal alongside this presentation</p>
+                </div>
+                <button class="btn btn-live" onclick="copyCommand(this, 'npm run demo:live')">
+                    📋 Copy: npm run demo:live
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">⚡ E2E QA CONTROL PLANE</div>
+        <p class="footer-text">
+            Reusable Automation Platform | December 2024<br>
+            Complete QA Lifecycle Orchestration for Any Technology Stack
+        </p>
+        <div class="footer-links">
+            <a href="https://github.com/joseph-karschnik/e2e-qa-control-plane" target="_blank">📄 GitHub</a>
+            <a href="#results" target="_blank">📊 Results</a>
+            <a href="#commands" target="_blank">💬 Get Started</a>
+        </div>
+    </footer>
+
+    <!-- Presenter Controls -->
+    <div class="presenter-controls">
+        <button class="presenter-btn" onclick="scrollToSection(-1)" title="Previous Section">↑</button>
+        <button class="presenter-btn" onclick="scrollToSection(1)" title="Next Section">↓</button>
+    </div>
+
+    <div class="slide-counter">
+        <span id="current-section">1</span> / <span id="total-sections">7</span>
+    </div>
+
+    <!-- Robot -->
+    <div class="robot-container">
+        <div class="robot">
+            <div class="robot-head">
+                <div class="robot-eye left"></div>
+                <div class="robot-eye right"></div>
+            </div>
+            <div class="robot-body">
+                <div class="robot-core"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span id="toast-message">Command copied!</span>
+    </div>
+
+    <script>
+        // Copy to Clipboard Function
+        async function copyCommand(button, customText = null) {
+            const commandText = customText || button.parentElement.querySelector('.command-code').textContent;
+            
+            try {
+                await navigator.clipboard.writeText(commandText);
+                
+                // Update button
+                const originalText = button.innerHTML;
+                button.innerHTML = '✓ Copied!';
+                button.classList.add('copied');
+                
+                // Show toast
+                showToast(`Copied: ${commandText.substring(0, 40)}${commandText.length > 40 ? '...' : ''}`);
+                
+                // Reset button after 2s
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                showToast('Failed to copy - try manually', true);
+            }
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = toast.querySelector('.toast-icon');
+            
+            toastMessage.textContent = message;
+            toastIcon.textContent = isError ? '✗' : '✓';
+            toast.style.borderColor = isError ? 'var(--danger)' : 'var(--success)';
+            toast.style.color = isError ? 'var(--danger)' : 'var(--success)';
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Sections for navigation
+        const sections = ['hero', 'architecture', 'workflow', 'terminal', 'phases', 'results', 'commands'];
+        let currentSectionIndex = 0;
+
+        // Terminal Demo Data
+        const demos = {
+            generate: {
+                commands: [
+                    { type: 'command', text: 'npm run generate:tests -- --work-item PROJ-520 --type ui' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🔍 Fetching work item PROJ-520 from work management tool...' },
+                    { type: 'success', text: '✓ Work item retrieved: "Field Validation Enhancement"' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '📝 Analyzing acceptance criteria...' },
+                    { type: 'output', text: '   - Found 5 acceptance criteria' },
+                    { type: 'output', text: '   - Identified 3 field validations' },
+                    { type: 'output', text: '   - Detected edge cases: 2' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '⚙️  Generating Gherkin scenarios...' },
+                    { type: 'success', text: '✓ Generated 8 test scenarios' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '📁 Created: src/features/ui/PROJ/PROJ-520.feature' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '✨ Test generation complete!' }
+                ]
+            },
+            validate: {
+                commands: [
+                    { type: 'command', text: 'npm run validate:steps -- --work-item PROJ-520' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🔍 Scanning feature files for PROJ-520...' },
+                    { type: 'output', text: '   - UI: src/features/ui/PROJ/PROJ-520.feature' },
+                    { type: 'output', text: '   - API: src/features/api/PROJ/PROJ-520.feature' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '📋 Validating step definitions...' },
+                    { type: 'success', text: '✓ Given I am logged in as {string} - MATCHED' },
+                    { type: 'success', text: '✓ When I navigate to {string} - MATCHED' },
+                    { type: 'success', text: '✓ Then I should see {string} field - MATCHED' },
+                    { type: 'success', text: '✓ When I set {string} to {string} - MATCHED' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' },
+                    { type: 'success', text: '✅ All 24 steps validated successfully!' },
+                    { type: 'success', text: '   Coverage: 100%' },
+                    { type: 'success', text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' }
+                ]
+            },
+            execute: {
+                commands: [
+                    { type: 'command', text: 'npm run test:feature -- --tags "@PROJ-520"' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🚀 Starting test execution...' },
+                    { type: 'output', text: '   Environment: QA' },
+                    { type: 'output', text: '   Browser: Chromium (headless)' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '📊 Creating test data...' },
+                    { type: 'success', text: '✓ Test record created: REC-20241218-142356' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '▶️  Running scenarios...' },
+                    { type: 'success', text: '✓ PROJ-520-UI-001: Verify field picklist (2.3s)' },
+                    { type: 'success', text: '✓ PROJ-520-UI-002: Set field value (1.8s)' },
+                    { type: 'success', text: '✓ PROJ-520-UI-003: Validate transitions (3.1s)' },
+                    { type: 'success', text: '✓ PROJ-520-API-001: API field update (0.4s)' },
+                    { type: 'success', text: '✓ PROJ-520-API-002: API validation rules (0.3s)' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🧹 Cleaning up test data...' },
+                    { type: 'success', text: '✓ Test data removed' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' },
+                    { type: 'success', text: '✅ 5 scenarios passed | 0 failed | 7.9s total' },
+                    { type: 'success', text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' }
+                ]
+            },
+            upload: {
+                commands: [
+                    { type: 'command', text: 'npm run tcm:UploadTestCase -- --work-item PROJ-520' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🔗 Connecting to test case management system...' },
+                    { type: 'success', text: '✓ Authenticated successfully' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '📤 Uploading test cases...' },
+                    { type: 'success', text: '✓ PROJ-520-UI-001 → Created (TC-4521)' },
+                    { type: 'success', text: '✓ PROJ-520-UI-002 → Created (TC-4522)' },
+                    { type: 'success', text: '✓ PROJ-520-UI-003 → Created (TC-4523)' },
+                    { type: 'success', text: '✓ PROJ-520-API-001 → Created (TC-4524)' },
+                    { type: 'success', text: '✓ PROJ-520-API-002 → Created (TC-4525)' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🔗 Linking to work item PROJ-520...' },
+                    { type: 'success', text: '✓ 5 test cases linked' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '✨ Upload complete!' },
+                    { type: 'output', text: '   Test cases available in your test management system' }
+                ]
+            },
+            cleanup: {
+                commands: [
+                    { type: 'command', text: 'npm run cleanup:accounts' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🔍 Scanning for test records...' },
+                    { type: 'output', text: '   Pattern: "Test Record%"' },
+                    { type: 'output', text: '   Environment: QA' },
+                    { type: 'output', text: '' },
+                    { type: 'warning', text: '⚠️  Found 12 test records to delete' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🧹 Deleting test records...' },
+                    { type: 'success', text: '✓ Deleted: Test Record - 20241218-091234' },
+                    { type: 'success', text: '✓ Deleted: Test Record - 20241218-102345' },
+                    { type: 'success', text: '✓ Deleted: Test Record - 20241218-113456' },
+                    { type: 'output', text: '   ... (9 more)' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' },
+                    { type: 'success', text: '✅ Cleanup complete: 12 records deleted' },
+                    { type: 'success', text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' }
+                ]
+            },
+            full: {
+                commands: [
+                    { type: 'command', text: '# Full E2E Automation Workflow Demo' },
+                    { type: 'output', text: '' },
+                    { type: 'command', text: 'npm run generate:tests -- --work-item PROJ-520' },
+                    { type: 'success', text: '✓ Generated 8 test scenarios → PROJ-520.feature' },
+                    { type: 'output', text: '' },
+                    { type: 'command', text: 'npm run validate:steps -- --work-item PROJ-520' },
+                    { type: 'success', text: '✓ All 24 steps validated (100% coverage)' },
+                    { type: 'output', text: '' },
+                    { type: 'command', text: 'npm run tcm:UploadTestCase -- --work-item PROJ-520' },
+                    { type: 'success', text: '✓ 5 test cases uploaded to test case management' },
+                    { type: 'output', text: '' },
+                    { type: 'command', text: 'git checkout -b feature/PROJ-520-tests && git add . && git commit -m "Add PROJ-520 tests"' },
+                    { type: 'success', text: '✓ Branch created, changes committed' },
+                    { type: 'output', text: '' },
+                    { type: 'command', text: 'git push origin feature/PROJ-520-tests' },
+                    { type: 'success', text: '✓ Pushed to repository → PR #142 created' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🤖 CI/CD pipeline triggered automatically...' },
+                    { type: 'info', text: '⏳ Running tests on Linux VM...' },
+                    { type: 'success', text: '✓ All tests passed (5/5)' },
+                    { type: 'output', text: '' },
+                    { type: 'info', text: '🔒 Deployment validation...' },
+                    { type: 'success', text: '✓ Deployment to QA approved' },
+                    { type: 'output', text: '' },
+                    { type: 'command', text: 'npm run tcm:UploadResult -- --work-item PROJ-520 --cycle "Sprint-93"' },
+                    { type: 'success', text: '✓ Results uploaded with evidence links' },
+                    { type: 'output', text: '' },
+                    { type: 'success', text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' },
+                    { type: 'success', text: '🎉 WORKFLOW COMPLETE - Ready for UAT!' },
+                    { type: 'success', text: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' }
+                ]
+            }
+        };
+
+        // Terminal Animation
+        const terminalBody = document.getElementById('terminal-body');
+        let isAnimating = false;
+
+        async function runDemo(demoName) {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            // Clear terminal
+            terminalBody.innerHTML = '';
+            
+            const demo = demos[demoName];
+            if (!demo) return;
+
+            // Update active button
+            document.querySelectorAll('.demo-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-demo="${demoName}"]`).classList.add('active');
+
+            for (const line of demo.commands) {
+                await addTerminalLine(line);
+                await sleep(line.type === 'command' ? 800 : 150);
+            }
+
+            // Add final prompt
+            await addTerminalLine({ type: 'prompt', text: '' });
+            isAnimating = false;
+        }
+
+        function addTerminalLine(line) {
+            return new Promise(resolve => {
+                const div = document.createElement('div');
+                div.className = 'terminal-line';
+
+                if (line.type === 'command') {
+                    div.innerHTML = `<span class="terminal-prompt">qa@control-plane</span>:<span class="terminal-info">~/E2E-QA-Control-Plane</span>$ <span class="terminal-command">${line.text}</span>`;
+                } else if (line.type === 'prompt') {
+                    div.innerHTML = `<span class="terminal-prompt">qa@control-plane</span>:<span class="terminal-info">~/E2E-QA-Control-Plane</span>$ <span class="terminal-cursor"></span>`;
+                } else if (line.type === 'output') {
+                    div.innerHTML = `<span class="terminal-output">${line.text}</span>`;
+                } else if (line.type === 'success') {
+                    div.innerHTML = `<span class="terminal-success">${line.text}</span>`;
+                } else if (line.type === 'warning') {
+                    div.innerHTML = `<span class="terminal-warning">${line.text}</span>`;
+                } else if (line.type === 'error') {
+                    div.innerHTML = `<span class="terminal-error">${line.text}</span>`;
+                } else if (line.type === 'info') {
+                    div.innerHTML = `<span class="terminal-info">${line.text}</span>`;
+                }
+
+                terminalBody.appendChild(div);
+                terminalBody.scrollTop = terminalBody.scrollHeight;
+                resolve();
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Demo button click handlers
+        document.querySelectorAll('.demo-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                runDemo(btn.dataset.demo);
+            });
+        });
+
+        // Section Navigation
+        function scrollToSection(direction) {
+            currentSectionIndex += direction;
+            if (currentSectionIndex < 0) currentSectionIndex = 0;
+            if (currentSectionIndex >= sections.length) currentSectionIndex = sections.length - 1;
+
+            document.getElementById(sections[currentSectionIndex]).scrollIntoView({ behavior: 'smooth' });
+            updateSectionCounter();
+        }
+
+        function updateSectionCounter() {
+            document.getElementById('current-section').textContent = currentSectionIndex + 1;
+            document.getElementById('total-sections').textContent = sections.length;
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+                e.preventDefault();
+                scrollToSection(1);
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                scrollToSection(-1);
+            } else if (e.key >= '1' && e.key <= '7') {
+                currentSectionIndex = parseInt(e.key) - 1;
+                document.getElementById(sections[currentSectionIndex]).scrollIntoView({ behavior: 'smooth' });
+                updateSectionCounter();
+            }
+        });
+
+        // Track current section on scroll
+        window.addEventListener('scroll', () => {
+            const scrollPosition = window.scrollY + window.innerHeight / 2;
+            
+            sections.forEach((sectionId, index) => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    const sectionTop = section.offsetTop;
+                    const sectionBottom = sectionTop + section.offsetHeight;
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                        currentSectionIndex = index;
+                        updateSectionCounter();
+                    }
+                }
+            });
+        });
+
+        // Initialize
+        updateSectionCounter();
+        
+        // Auto-run first demo after page load
+        setTimeout(() => {
+            runDemo('full');
+        }, 2000);
+    </script>
+</body>
+</html>
+

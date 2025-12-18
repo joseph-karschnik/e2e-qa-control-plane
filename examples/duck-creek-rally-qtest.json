@@ -1,0 +1,47 @@
+{
+  "name": "Duck Creek + Rally + qTest Configuration",
+  "description": "Example configuration for Duck Creek Policy Admin, Rally work management, and qTest test case management",
+  "crm": {
+    "adapter": "duck-creek",
+    "baseUrl": "${DUCK_CREEK_BASE_URL}",
+    "authentication": {
+      "type": "oauth2",
+      "clientId": "${DUCK_CREEK_CLIENT_ID}",
+      "clientSecret": "${DUCK_CREEK_CLIENT_SECRET}"
+    }
+  },
+  "workManagement": {
+    "adapter": "rally",
+    "baseUrl": "${RALLY_BASE_URL}",
+    "workspace": "${RALLY_WORKSPACE}",
+    "authentication": {
+      "type": "api-key",
+      "apiKey": "${RALLY_API_KEY}"
+    }
+  },
+  "testCaseManagement": {
+    "adapter": "qtest",
+    "baseUrl": "${QTEST_BASE_URL}",
+    "projectId": "${QTEST_PROJECT_ID}",
+    "authentication": {
+      "type": "token",
+      "token": "${QTEST_TOKEN}"
+    }
+  },
+  "cicd": {
+    "adapter": "gitlab",
+    "projectId": "${GITLAB_PROJECT_ID}",
+    "pipeline": ".gitlab-ci.yml"
+  },
+  "documentation": {
+    "adapter": "confluence",
+    "baseUrl": "${CONFLUENCE_BASE_URL}",
+    "spaceKey": "${CONFLUENCE_SPACE_KEY}",
+    "authentication": {
+      "type": "basic",
+      "username": "${CONFLUENCE_USERNAME}",
+      "apiToken": "${CONFLUENCE_API_TOKEN}"
+    }
+  }
+}
+

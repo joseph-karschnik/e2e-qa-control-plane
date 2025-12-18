@@ -1,0 +1,50 @@
+{
+  "name": "Salesforce + Jira + Zephyr Configuration",
+  "description": "Example configuration for Salesforce CRM, Jira work management, and Zephyr Scale test case management",
+  "crm": {
+    "adapter": "salesforce",
+    "baseUrl": "${SALESFORCE_INSTANCE_URL}",
+    "apiVersion": "v58.0",
+    "authentication": {
+      "type": "jwt",
+      "clientId": "${SALESFORCE_CLIENT_ID}",
+      "privateKey": "${SALESFORCE_PRIVATE_KEY}"
+    }
+  },
+  "workManagement": {
+    "adapter": "jira",
+    "baseUrl": "${JIRA_BASE_URL}",
+    "projectKey": "${JIRA_PROJECT_KEY}",
+    "authentication": {
+      "type": "basic",
+      "username": "${JIRA_USERNAME}",
+      "apiToken": "${JIRA_API_TOKEN}"
+    }
+  },
+  "testCaseManagement": {
+    "adapter": "zephyr",
+    "baseUrl": "${ZEPHYR_BASE_URL}",
+    "projectKey": "${ZEPHYR_PROJECT_KEY}",
+    "authentication": {
+      "type": "jwt",
+      "accessKey": "${ZEPHYR_ACCESS_KEY}",
+      "secretKey": "${ZEPHYR_SECRET_KEY}"
+    }
+  },
+  "cicd": {
+    "adapter": "github-actions",
+    "repository": "${GITHUB_REPOSITORY}",
+    "workflow": "test.yml"
+  },
+  "documentation": {
+    "adapter": "confluence",
+    "baseUrl": "${CONFLUENCE_BASE_URL}",
+    "spaceKey": "${CONFLUENCE_SPACE_KEY}",
+    "authentication": {
+      "type": "basic",
+      "username": "${CONFLUENCE_USERNAME}",
+      "apiToken": "${CONFLUENCE_API_TOKEN}"
+    }
+  }
+}
+

@@ -1,0 +1,50 @@
+{
+  "name": "Guidewire + Azure DevOps + Xray Configuration",
+  "description": "Example configuration for Guidewire CRM, Azure DevOps work management, and Xray test case management",
+  "crm": {
+    "adapter": "guidewire",
+    "baseUrl": "${GUIDEWIRE_BASE_URL}",
+    "authentication": {
+      "type": "oauth2",
+      "clientId": "${GUIDEWIRE_CLIENT_ID}",
+      "clientSecret": "${GUIDEWIRE_CLIENT_SECRET}"
+    }
+  },
+  "workManagement": {
+    "adapter": "azure-devops",
+    "organization": "${ADO_ORGANIZATION}",
+    "project": "${ADO_PROJECT}",
+    "authentication": {
+      "type": "pat",
+      "personalAccessToken": "${ADO_PAT}"
+    }
+  },
+  "testCaseManagement": {
+    "adapter": "xray",
+    "baseUrl": "${XRAY_BASE_URL}",
+    "projectKey": "${XRAY_PROJECT_KEY}",
+    "authentication": {
+      "type": "jwt",
+      "clientId": "${XRAY_CLIENT_ID}",
+      "clientSecret": "${XRAY_CLIENT_SECRET}"
+    }
+  },
+  "cicd": {
+    "adapter": "azure-pipelines",
+    "organization": "${ADO_ORGANIZATION}",
+    "project": "${ADO_PROJECT}",
+    "pipelineId": "${ADO_PIPELINE_ID}"
+  },
+  "documentation": {
+    "adapter": "sharepoint",
+    "siteUrl": "${SHAREPOINT_SITE_URL}",
+    "libraryName": "${SHAREPOINT_LIBRARY}",
+    "authentication": {
+      "type": "azure-ad",
+      "tenantId": "${AZURE_TENANT_ID}",
+      "clientId": "${AZURE_CLIENT_ID}",
+      "clientSecret": "${AZURE_CLIENT_SECRET}"
+    }
+  }
+}
+
