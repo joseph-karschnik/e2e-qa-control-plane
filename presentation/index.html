@@ -1269,7 +1269,7 @@
                 <div class="arch-card storage">
                     <div class="arch-icon">🟣</div>
                     <h3>Data Store</h3>
-                    <p>SQL Server / PostgreSQL / Custom. Operational data validation and cross-system integrity testing.</p>
+                    <p>SQL Server / PostgreSQL / Custom. Operational data validation, SQL test case generation, and cross-system integrity testing with automated test generation from work items.</p>
                     <span class="arch-tag">Data Store</span>
                 </div>
                 <div class="arch-card core">
@@ -1299,7 +1299,7 @@
                         <span class="workflow-icon">📥</span>
                         <h3>Get Work Item</h3>
                     </div>
-                    <p>Add work item to work-items.txt. Review requirements, acceptance criteria, and field definitions in your work management tool (Jira / ADO / Rally).</p>
+                    <p>Add work item to work-items.txt. Review requirements, acceptance criteria, and field definitions in your work management tool (Jira / Azure DevOps / Rally).</p>
                     <div class="workflow-output">→ Work item identified: PROJ-520</div>
                 </div>
                 <div class="workflow-step">
@@ -1308,8 +1308,8 @@
                         <span class="workflow-icon">📝</span>
                         <h3>Create Test Cases</h3>
                     </div>
-                    <p>Generate comprehensive Gherkin test cases from work management tool. Review scenarios, validate step definitions, upload to test case management (Zephyr / Xray / qTest).</p>
-                    <div class="workflow-output">→ Feature files: PROJ-520-UI-001, PROJ-520-API-001</div>
+                    <p>Generate comprehensive Gherkin test cases from work management tool. Supports UI, API, and SQL test generation. Review scenarios, validate step definitions, upload to test case management (Zephyr / Xray / qTest).</p>
+                    <div class="workflow-output">→ Feature files: PROJ-520-UI-001, PROJ-520-API-001, PROJ-520-SQL-001</div>
                 </div>
                 <div class="workflow-step">
                     <div class="workflow-number">3</div>
@@ -1417,13 +1417,13 @@
                 <div class="phase-card">
                     <div class="phase-number">01</div>
                     <h3>🔍 Requirement Analysis</h3>
-                    <p>Extracts acceptance criteria, field definitions, and business rules from work management tool (Jira / ADO / Rally) via API.</p>
+                    <p>Extracts acceptance criteria, field definitions, and business rules from work management tool (Jira / Azure DevOps / Rally) via API. Supports SQL code analysis for database testing.</p>
                     <span class="phase-status automated">✓ Fully Automated</span>
                 </div>
                 <div class="phase-card">
                     <div class="phase-number">02</div>
                     <h3>📝 Test Case Design</h3>
-                    <p>Generates comprehensive Gherkin (BDD) feature files with positive, negative, and edge case scenarios.</p>
+                    <p>Generates comprehensive Gherkin (BDD) feature files with positive, negative, and edge case scenarios. Supports UI, API, and SQL test case generation from work items.</p>
                     <span class="phase-status automated">✓ Fully Automated</span>
                 </div>
                 <div class="phase-card">
@@ -1625,6 +1625,20 @@
                         </div>
                         <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
                     </div>
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run ado:generate-tests -- --work-item PROJ-520</code>
+                            <span class="command-desc">Generate SQL test cases from Azure DevOps work item</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run sql:generate-comprehensive -- --work-item PROJ-520</code>
+                            <span class="command-desc">Generate comprehensive SQL test cases with positive/negative scenarios</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
                 </div>
             </div>
             <div class="command-group">
@@ -1679,6 +1693,44 @@
                         <div class="command-content">
                             <code class="command-code">npm run cleanup:accounts</code>
                             <span class="command-desc">Clean up test data</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="command-group">
+                <h3>Azure DevOps Integration</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run azure-devops:fetch -- --work-item PROJ-520</code>
+                            <span class="command-desc">Fetch work item from Azure DevOps</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run azure-devops:test</code>
+                            <span class="command-desc">Test Azure DevOps connection</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="command-group">
+                <h3>SQL Server Testing</h3>
+                <div class="command-list">
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run test:sql</code>
+                            <span class="command-desc">Test SQL Server connection</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
+                    </div>
+                    <div class="command-item">
+                        <div class="command-content">
+                            <code class="command-code">npm run sql:query -- --database "ODS" --query "SELECT * FROM Accounts"</code>
+                            <span class="command-desc">Execute SQL query for validation</span>
                         </div>
                         <button class="copy-btn" onclick="copyCommand(this)">📋 Copy</button>
                     </div>
